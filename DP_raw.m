@@ -63,9 +63,9 @@ Num_state = size(Net_s,1);
 C_t_g = zeros(L+1,Num_state);
 
 state_initial = 70;
-C_t_g(end,:) = fcv_dp_phi_raw(Net_s,state_initial);
+C_t_g(end,:) = func_phi_raw(Net_s,state_initial);
 for k = L:-1:1
-    [cost_temp, state_out_temp, output_temp] = fcv_dp_raw(Net_a, Net_s, P_demand(k));
+    [cost_temp, state_out_temp, output_temp] = func_L_raw(Net_a, Net_s, P_demand(k));
     C_t_g_temp = interp1(Net_s,C_t_g(k+1,:),state_out_temp,'spline');
     [C_t_g(k,:),index_a_temp] = min(cost_temp+C_t_g_temp,[],2);
 end
@@ -77,7 +77,7 @@ State_opt = zeros(L+1,1);
 state_current = state_initial;
 State_opt(1,:)= state_current;
 for k = 1:L
-    [cost_temp, state_out_temp, output_temp] = fcv_dp_raw(Net_a, State_opt(k), P_demand(k));
+    [cost_temp, state_out_temp, output_temp] = func_L_raw(Net_a, State_opt(k), P_demand(k));
     C_t_g_temp = interp1(Net_s,C_t_g(k+1,:),state_out_temp);
     [C_t_fwd_temp,index_a_temp] = min(cost_temp+C_t_g_temp,[],2);
     State_opt(k+1) = state_out_temp(index_a_temp);

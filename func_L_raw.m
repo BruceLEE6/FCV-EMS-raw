@@ -58,7 +58,6 @@ p_demand  = para;% load power
 % 
 SOC_min=30;                                              % turn ON of the FC
 SOC_max=75;                                              % turn OFF of the FC
-irech=400;                                                % battery researge current (A)
 
 U0 = interp1([20 90]',[BAT.U_nom*0.95 BAT.U_nom*1.05]',state_in,'linear','extrap');
 u_fc = 0*power(action,4)+b2*power(action,3)+c2*power(action,2)+d2*action+e2;
