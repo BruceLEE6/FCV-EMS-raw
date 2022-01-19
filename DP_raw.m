@@ -1,12 +1,14 @@
 clear all; 
 clc; 
 close all;
-% load driving cycle
+% load driving cycle, this is a driving cycle imported from VTS challenge
+% 2017
 load('Power_FCV_demande.mat')
-% the original sample period is 0.005s. down sampling with by 100 the
+% the original sample period is 0.005s. down sampling by 0.5/0.005 = 100 the
 % control period is then 0.5s
 T_demand = P.time(1:100:end); 
 P_demand = P.signals.values(1:100:end,1); % here the original data are multiplied by 3.5 in order to have an adaptive scale
+% the overall look of the load power shape
 figure
 plot(T_demand,P_demand)
 xlabel('Time [s]');
@@ -16,17 +18,16 @@ set(get(gca,'YLabel'),'FontSize',12);
 set(get(gca,'ZLabel'),'FontSize',12);
 set(gcf,'position',[232   246   560   320])
 set(gca,'XGrid','on','YGrid','on','GridLineStyle',':');
-%P_demand = P_demand(1:end-1);
+
+% the length of the load power time series
 L = length(P_demand);
 
+% the up and down limits of the final SOC values
 SOC_final_min = 70;
 SOC_final_max = 75;
-% create grid
-clear grd
-% grd.Nx{1}    = 46; % the resolution is 0.01
-% grd.Xn{1}.hi = 75; % low limit of SOC is 1
-% grd.Xn{1}.lo = 30; % low limit of SOC is 0.3
-Net_s = [30:1:75]'; % FC current
+
+
+Net_s = [30:1:75]'; % discrete SOC state 
 
 Net_a = [0:10:400]'; % FC current
 % the input here is the partition of the demand power on SC

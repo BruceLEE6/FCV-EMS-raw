@@ -38,19 +38,13 @@ BAT.U_max = BAT.U_cel_max*BAT.Nbre_cel_serie*BAT.Nbre_mod_serie;  % maximal batt
 
 BAT.Ceq = BAT.Q_bat*3600/(BAT.U_max-BAT.U_min);   % equivalent capacity of the battery
 r_bat=0.028;                                      % internal resistance of the battery
-rc=500/BAT.Ceq;                                   % parallel resistor
+% 1-order battery model is considered in our case, so the parallel resistor
+% is ignored while calculating battery current and SOC variation
+rc=500/BAT.Ceq;                                   % parallel resistor 
 
-% SOC vs voltage
-% for i = 1:95
-% soc(i) = i;
-% U0(i) = interp1q([20 90]',[BAT.U_nom*0.95 BAT.U_nom*1.05]',soc(i));
-% end
-% figure
-% plot(soc,U0)
+
 %% DP implementation
 
-% calculate battery current from power and open-circuit voltage
-% i_bat =  0.5*(U0_current-sqrt(U0_current.^2-4*P_bat*r_bat))/r_bat; % battery current
 Num_state = size(state_in,1);
 Num_action = size(action,1); 
 p_demand  = para;% load power
@@ -63,17 +57,19 @@ U0 = interp1([20 90]',[BAT.U_nom*0.95 BAT.U_nom*1.05]',state_in,'linear','extrap
 u_fc = 0*power(action,4)+b2*power(action,3)+c2*power(action,2)+d2*action+e2;
 P_fc = (action.*u_fc-action.^2*r_L)*eita_boost;
 
-P_bat = p_demand - P_fc'; % notice that here the transition operation makes P_fc a column vector.
+P_bat = p_demand - P_fc'; % notice that here the transition operation makes P_fc a row vector.
 
+% battery output current is calculated using the battery power and
+% parameters
 i_bat =  0.5*(U0-sqrt(U0.^2-4*P_bat*r_bat))/r_bat;
 % To handle the simutation that delta < 0
 i_bat = (conj(i_bat)+i_bat)/2;
 
-
 state_out = state_in - 100/3600/BAT.Q_bat*(i_bat.*Timestep); % state_out is a matrix with the Num_state rows, Num_action columns.
 cost = ones(Num_state,1)*(g2*action+h2*ones(size(action)))'*Timestep*0.08988/60; % cost is a matrix with the Num_state rows, Num_action columns.
-cost = cost + 5*max(max(state_out - SOC_max,SOC_min - state_out),0);
+cost = cost + 5*max(max(state_out - SOC_max,SOC_min - state_out),0); % additional costs should be added when the limits of SOC are violated 
 
+% the output variables are only used for debugging
 output.u_fc = u_fc;
 output.P_fc = P_fc;
 output.P_bat = P_bat;
