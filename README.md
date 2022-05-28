@@ -5,3 +5,7 @@ This is the implementation of a raw dynamic programming (DP) for the energy mana
 - func_L_raw.m: FCEV model function. 
 - func_phi_raw.m: cost related to the final SOC.
 - Power_FCV_demande.mat: load power versus time of an arbitrary driving cycle. 
+- func_pmp_raw.m: function used for PMP EMS
+- PMP_raw.m: main program for PMP implementation
+- func_ecms_raw.m: function used for ECMS EMS
+- ECMS_raw.m main program for ECMS implementation
